@@ -8,6 +8,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'MarginNote 插件开发文档',
+			customCss: ['/src/styles/starlight-overrides.css'],
 			components: {
 				Search: './src/components/Search.astro',
 				Footer: './src/components/Footer.astro',
@@ -27,6 +28,7 @@ export default defineConfig({
 						{ label: '笔记与数据库', slug: 'guides/notes-and-database' },
 						{ label: '脑图与选区', slug: 'guides/mindmap-and-selection' },
 						{ label: '工具栏与命令', slug: 'guides/toolbar-and-commands' },
+						{ label: '快捷键', slug: 'guides/shortcut-keys' },
 						{ label: '原生 UI', slug: 'guides/native-ui' },
 						{ label: '存储与文件', slug: 'guides/storage-and-files' },
 						{ label: '网络请求', slug: 'guides/network-requests' },
@@ -101,6 +103,12 @@ export default defineConfig({
 							items: [
 								{ label: 'JavaScript 原生环境', slug: 'reference/js-runtime' },
 								{ label: '隐藏的边界（The Black Box）', slug: 'reference/black-box' },
+							],
+						},
+						{
+							label: '附录',
+							items: [
+								{ label: '内建command清单', slug: 'reference/global/builtin-commands' },
 							],
 						},
 					],

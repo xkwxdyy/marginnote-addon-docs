@@ -159,6 +159,16 @@ refreshAfterDBChanged(topicid: string): void
 queryCommandWithKeyFlagsInWindow(command: string, keyFlags: any, window: UIWindow): NSDictionary
 ```
 
+该接口用于查询某个内建command在“当前窗口+修饰键(keyFlags)”上下文里是否可用，以及是否处于勾选态。你可以用它来：
+
+- 判断某个command当前是否能执行（例如编辑态/无焦点时可能禁用）。
+- 在调用`processCommandWithKeyFlagsInWindow(...)`之前做保护性判断。
+
+已确认返回值至少包含：
+
+- `disabled:boolean`：是否禁用。
+- `checked:boolean`：是否勾选态。
+
 **Parameters:**
 
 | Name | Type | Description |
@@ -178,6 +188,12 @@ queryCommandWithKeyFlagsInWindow(command: string, keyFlags: any, window: UIWindo
 ```javascript
 processCommandWithKeyFlagsInWindow(command: string, keyFlags: any, window: UIWindow): void
 ```
+
+该接口用于执行内建command。只要command字符串是系统可识别的命令标识，就可以直接调用执行（例如已确认`ZoomToFit`可执行）。
+
+可用的command列表没有单一集中枚举，建议参考内建command清单页，并在运行时用`queryCommandWithKeyFlagsInWindow`确认`disabled:false`后再执行：
+
+- `/reference/global/builtin-commands/`
 
 **Parameters:**
 

@@ -1,0 +1,23 @@
+@layer starlight.overrides {
+	/* Disable horizontal scrolling for tables and prefer wrapping instead. */
+	.sl-markdown-content table:not(:where(.not-content *)) {
+		display: table;
+		overflow: visible;
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+		white-space: normal;
+		overflow-wrap: anywhere;
+		word-break: break-word;
+	}
+
+	/* Inline code inside table cells should also wrap instead of forcing overflow. */
+	.sl-markdown-content :is(th, td) code:not(:where(.not-content *)) {
+		white-space: normal;
+		overflow-wrap: anywhere;
+		word-break: break-word;
+	}
+}
+

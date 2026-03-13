@@ -117,13 +117,11 @@ async function getExtractor() {
 	if (extractorPromise) return extractorPromise;
 	loadEnv();
 	setupProxy();
-	env.cacheDir = path.join(MCP_DIR, 'models');
 	env.allowRemoteModels = true;
 	if (process.env.HF_ENDPOINT) {
 		env.HF_ENDPOINT = process.env.HF_ENDPOINT;
 	}
 
-	const modelDir = path.join(env.cacheDir, 'Xenova', 'bge-small-zh-v1.5');
 	const create = async () =>
 		pipeline('feature-extraction', MODEL_ID, {
 			progress_callback: logDownloadProgress,
@@ -146,7 +144,6 @@ async function getExtractor() {
 				}
 
 				logInfo(`模型下载失败，准备重试(${attempt}/${MAX_EXTRACTOR_RETRIES})...`);
-				await fs.rm(modelDir, { recursive: true, force: true });
 			}
 		}
 		throw new Error('模型加载失败');

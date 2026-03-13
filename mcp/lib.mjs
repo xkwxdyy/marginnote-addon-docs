@@ -43,6 +43,8 @@ let proxyInitialized = false;
 const MAX_EXTRACTOR_RETRIES = 3;
 const IS_STDIO = process.env.MCP_STDIO === '1';
 const IS_SILENT = process.env.MCP_SILENT === '1';
+const NO_COLOR = process.env.MCP_NO_COLOR === '1';
+let lastDownloadProgress = -1;
 
 function logInfo(message) {
 	if (IS_SILENT) return;
@@ -50,6 +52,47 @@ function logInfo(message) {
 		process.stderr.write(`${message}\n`);
 	} else {
 		console.log(message);
+	}
+}
+
+function color(text, code) {
+	if (NO_COLOR) return text;
+	return `\x1b[${code}m${text}\x1b[0m`;
+}
+
+function formatBytes(bytes) {
+	if (!Number.isFinite(bytes)) return '';
+	const units = ['B', 'KB', 'MB', 'GB'];
+	let idx = 0;
+	let value = bytes;
+	while (value >= 1024 && idx < units.length - 1) {
+		value /= 1024;
+		idx += 1;
+	}
+	return `${value.toFixed(1)}${units[idx]}`;
+}
+
+function logDownloadProgress(info) {
+	if (IS_SILENT) return;
+	if (info?.status === 'download') {
+		logInfo(color('开始下载模型...', '38;5;45'));
+		return;
+	}
+	if (info?.status === 'progress' && typeof info.progress === 'number') {
+		const pct = Math.max(0, Math.min(100, Math.round(info.progress)));
+		if (pct === lastDownloadProgress) return;
+		lastDownloadProgress = pct;
+		const loaded = formatBytes(info.loaded);
+		const total = formatBytes(info.total);
+		const suffix = loaded && total ? ` ${loaded}/${total}` : '';
+		const line = `${color('模型下载进度', '38;5;45')}: ${pct}%${suffix}`;
+		if (IS_STDIO) {
+			process.stderr.write(`\r${line}`);
+			if (pct === 100) process.stderr.write('\n');
+		} else {
+			process.stdout.write(`\r${line}`);
+			if (pct === 100) process.stdout.write('\n');
+		}
 	}
 }
 
@@ -81,7 +124,10 @@ async function getExtractor() {
 	}
 
 	const modelDir = path.join(env.cacheDir, 'Xenova', 'bge-small-zh-v1.5');
-	const create = async () => pipeline('feature-extraction', MODEL_ID);
+	const create = async () =>
+		pipeline('feature-extraction', MODEL_ID, {
+			progress_callback: logDownloadProgress,
+		});
 
 	extractorPromise = (async () => {
 		for (let attempt = 1; attempt <= MAX_EXTRACTOR_RETRIES; attempt += 1) {

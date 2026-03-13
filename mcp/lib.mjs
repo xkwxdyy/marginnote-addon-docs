@@ -14,7 +14,7 @@ const DEFAULT_ROOT = path.resolve(__dirname, '..');
 
 function resolveRootDir() {
 	const envRoot = (process.env.MN_DOCS_ROOT || '').trim();
-	if (envRoot) return envRoot;
+	if (envRoot && fsSyncExists(path.join(envRoot, 'src', 'content', 'docs'))) return envRoot;
 	const cwd = process.cwd();
 	const docsFromCwd = path.join(cwd, 'src', 'content', 'docs');
 	try {

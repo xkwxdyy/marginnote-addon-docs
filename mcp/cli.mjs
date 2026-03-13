@@ -11,6 +11,7 @@ let port;
 let prebuild = false;
 let silent = false;
 let root;
+let resolvedRoot;
 
 for (let i = 0; i < args.length; i += 1) {
 	const arg = args[i];
@@ -78,12 +79,27 @@ try {
 	version = JSON.parse(raw).version || version;
 } catch {}
 
+function hasDocsDir(base) {
+	try {
+		const docsPath = path.join(base, 'src', 'content', 'docs');
+		return fs.existsSync(docsPath);
+	} catch {
+		return false;
+	}
+}
+
+if (root) {
+	resolvedRoot = root;
+} else if (hasDocsDir(process.cwd())) {
+	resolvedRoot = process.cwd();
+}
+
 if (mode === 'stdio') {
 	process.env.MCP_STDIO = '1';
 	process.env.MCP_SILENT = silent ? '1' : '0';
 	process.env.MN_DOCS_VERSION = version;
 	process.env.MN_DOCS_MODE = 'stdio';
-	process.env.MN_DOCS_ROOT = root || process.env.MN_DOCS_ROOT || process.cwd();
+	if (resolvedRoot) process.env.MN_DOCS_ROOT = resolvedRoot;
 	if (prebuild) process.env.MCP_PREBUILD = '1';
 	await import('./server.mjs');
 } else {
@@ -91,7 +107,7 @@ if (mode === 'stdio') {
 	process.env.MN_DOCS_VERSION = version;
 	process.env.MN_DOCS_MODE = 'http';
 	if (port) process.env.MN_DOCS_PORT = String(port);
-	process.env.MN_DOCS_ROOT = root || process.env.MN_DOCS_ROOT || process.cwd();
+	if (resolvedRoot) process.env.MN_DOCS_ROOT = resolvedRoot;
 	if (prebuild) process.env.MCP_PREBUILD = '1';
 	await import('./server-http.mjs');
 }

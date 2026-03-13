@@ -4,10 +4,31 @@ import { buildIndex, getPaths, isIndexStale, loadIndex, searchDocs } from './lib
 
 const TOOL_NAME = 'search_docs';
 const IS_SILENT = process.env.MCP_SILENT === '1';
+const NO_COLOR = process.env.MCP_NO_COLOR === '1';
 
 function logError(...args) {
 	if (IS_SILENT) return;
 	console.error(...args);
+}
+
+function color(text, code) {
+	if (NO_COLOR) return text;
+	return `\x1b[${code}m${text}\x1b[0m`;
+}
+
+function renderSplash() {
+	if (IS_SILENT) return;
+	const version = process.env.MN_DOCS_VERSION || '0.0.0';
+	const mode = process.env.MN_DOCS_MODE || 'stdio';
+	const lines = [
+		color('╭──────────────────────────────────────────────────────────────╮', '38;5;45'),
+		color('│  mn-docs-mcp', '38;5;45') + color(` v${version}`, '38;5;214') + color('  (Charm风格启动)         │', '38;5;45'),
+		color('│                                                              │', '38;5;45'),
+		color(`│  模式: ${mode.padEnd(12)}  状态: 已启动                         │`, '38;5;39'),
+		color('│                                                              │', '38;5;45'),
+		color('╰──────────────────────────────────────────────────────────────╯', '38;5;45'),
+	];
+	process.stderr.write(lines.join('\n') + '\n');
 }
 
 async function ensureIndex() {
@@ -85,7 +106,7 @@ await server.start({
 	transportType: 'stdio',
 });
 
-// 默认不自动构建，避免阻塞握手；仅在首次查询时构建
-if (process.env.MCP_PREBUILD === '1') {
-	setTimeout(() => initIndexInBackground(), 1000);
-}
+renderSplash();
+
+// 默认自动构建，异步启动避免阻塞握手
+setTimeout(() => initIndexInBackground(), 0);

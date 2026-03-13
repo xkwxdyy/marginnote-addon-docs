@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const args = process.argv.slice(2);
 
 let mode = 'stdio';
 let port;
 let prebuild = false;
-let silent = true;
+let silent = false;
 
 for (let i = 0; i < args.length; i += 1) {
 	const arg = args[i];
@@ -25,6 +29,10 @@ for (let i = 0; i < args.length; i += 1) {
 		silent = false;
 		continue;
 	}
+	if (arg === '--silent') {
+		silent = true;
+		continue;
+	}
 	if (arg === '--port' && args[i + 1]) {
 		port = args[i + 1];
 		i += 1;
@@ -41,7 +49,8 @@ for (let i = 0; i < args.length; i += 1) {
 				'  --http            启动HTTPStream模式(默认stdio)',
 				'  --port <port>     HTTP端口(默认8788)',
 				'  --prebuild        启动后后台预构建索引',
-				'  --verbose         输出日志(默认静默)',
+				'  --verbose         输出日志(覆盖--silent)',
+				'  --silent          关闭开屏与日志',
 				'  --stdio           显式使用stdio模式',
 			].join('\n') + '\n'
 		);
@@ -49,13 +58,27 @@ for (let i = 0; i < args.length; i += 1) {
 	}
 }
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packagePath = path.join(__dirname, '../package.json');
+let version = '0.0.0';
+try {
+	const raw = fs.readFileSync(packagePath, 'utf-8');
+	version = JSON.parse(raw).version || version;
+} catch {}
+
 if (mode === 'stdio') {
 	process.env.MCP_STDIO = '1';
 	process.env.MCP_SILENT = silent ? '1' : '0';
+	process.env.MN_DOCS_VERSION = version;
+	process.env.MN_DOCS_MODE = 'stdio';
 	if (prebuild) process.env.MCP_PREBUILD = '1';
 	await import('./server.mjs');
 } else {
 	if (port) process.env.MCP_HTTP_PORT = String(port);
+	process.env.MN_DOCS_VERSION = version;
+	process.env.MN_DOCS_MODE = 'http';
+	if (port) process.env.MN_DOCS_PORT = String(port);
 	if (prebuild) process.env.MCP_PREBUILD = '1';
 	await import('./server-http.mjs');
 }

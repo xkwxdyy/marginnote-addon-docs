@@ -20,8 +20,30 @@ function stripAnsi(text) {
 	return text.replace(/\x1b\[[0-9;]*m/g, '');
 }
 
+function stringWidth(text) {
+	const plain = stripAnsi(text);
+	let width = 0;
+	for (const char of plain) {
+		const code = char.codePointAt(0);
+		if (!code) continue;
+		// CJK / Fullwidth / Wide characters
+		const isWide =
+			(code >= 0x1100 && code <= 0x115f) ||
+			(code === 0x2329 || code === 0x232a) ||
+			(code >= 0x2e80 && code <= 0xa4cf) ||
+			(code >= 0xac00 && code <= 0xd7a3) ||
+			(code >= 0xf900 && code <= 0xfaff) ||
+			(code >= 0xfe10 && code <= 0xfe19) ||
+			(code >= 0xfe30 && code <= 0xfe6f) ||
+			(code >= 0xff00 && code <= 0xff60) ||
+			(code >= 0xffe0 && code <= 0xffe6);
+		width += isWide ? 2 : 1;
+	}
+	return width;
+}
+
 function padLine(line, width) {
-	const len = stripAnsi(line).length;
+	const len = stringWidth(line);
 	const padding = width - len;
 	return line + (padding > 0 ? ' '.repeat(padding) : '');
 }
@@ -34,7 +56,7 @@ function renderSplash() {
 		color(`mn-docs-mcp v${version}`, '38;5;45'),
 		color(`模式: ${mode}`, '38;5;39'),
 	];
-	const maxWidth = Math.max(...contentLines.map((line) => stripAnsi(line).length)) + 4;
+	const maxWidth = Math.max(...contentLines.map((line) => stringWidth(line))) + 4;
 	const top = color('╭' + '─'.repeat(maxWidth) + '╮', '38;5;45');
 	const bottom = color('╰' + '─'.repeat(maxWidth) + '╯', '38;5;45');
 	const body = contentLines.map((line) => {

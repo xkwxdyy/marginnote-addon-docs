@@ -121,6 +121,20 @@ function setupProxy() {
 	}
 }
 
+function normalizeRemoteHost(raw) {
+	const value = String(raw || '').trim();
+	if (!value) return '';
+	try {
+		const normalized = new URL(value);
+		if (!normalized.pathname.endsWith('/')) {
+			normalized.pathname += '/';
+		}
+		return normalized.toString();
+	} catch {
+		return value.endsWith('/') ? value : `${value}/`;
+	}
+}
+
 async function getExtractor() {
 	if (extractorPromise) return extractorPromise;
 	loadEnv();
@@ -137,8 +151,9 @@ async function getExtractor() {
 		process.env.LOG_LEVEL = 'error';
 	}
 	
-	if (process.env.HF_ENDPOINT) {
-		env.HF_ENDPOINT = process.env.HF_ENDPOINT;
+	const remoteHost = normalizeRemoteHost(process.env.HF_ENDPOINT);
+	if (remoteHost) {
+		env.remoteHost = remoteHost;
 	}
 
 	const modelDir = path.join(env.cacheDir, 'Xenova', 'bge-small-zh-v1.5');

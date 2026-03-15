@@ -26,7 +26,8 @@ pnpm preview  # 预览构建结果
 
 本项目内置一个本地MCPServer，支持stdio与HTTPStream两种方式，返回纯文本片段，适合AI直接调用。
 
-embedding模型使用本地BGE-small-zh-v1.5(ONNX)，首次启动会自动下载到 `.mcp/models`。模型文件约95.8MB，向量维度为512。
+embedding模型使用本地BGE-small-zh-v1.5(ONNX)，首次启动会自动下载到transformers.js默认缓存目录。模型文件约95.8MB，向量维度为512。
+模型下载使用固定remoteHost镜像https://hf-mirror.com，不再依赖.env配置。
 
 ### 快速开始(npx)
 

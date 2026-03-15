@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 import { env, pipeline } from '@huggingface/transformers';
 import { Agent, ProxyAgent, setGlobalDispatcher } from 'undici';
-import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,10 +103,6 @@ function logDownloadProgress(info) {
 	}
 }
 
-function loadEnv() {
-	dotenv.config({ path: path.join(ROOT_DIR, '.env') });
-}
-
 function setupProxy() {
 	if (proxyInitialized) return;
 	proxyInitialized = true;
@@ -123,25 +118,22 @@ function setupProxy() {
 
 async function getExtractor() {
 	if (extractorPromise) return extractorPromise;
-	loadEnv();
 	setupProxy();
 	
 	// 抑制 Hugging Face Transformers 的警告输出
-	env.cacheDir = path.join(MCP_DIR, 'models');
 	env.allowRemoteModels = true;
 	env.disableProgressBars = true; // 禁用库自带的进度条
 	env.disableSymlinksWarning = true; // 禁用符号链接警告
+	env.remoteHost = 'https://hf-mirror.com';
 	
 	// 设置日志级别为 error，避免 info/warning 级别日志干扰
 	if (!process.env.LOG_LEVEL) {
 		process.env.LOG_LEVEL = 'error';
 	}
 	
-	if (process.env.HF_ENDPOINT) {
-		env.HF_ENDPOINT = process.env.HF_ENDPOINT;
-	}
-
-	const modelDir = path.join(env.cacheDir, 'Xenova', 'bge-small-zh-v1.5');
+	const modelDir = env.cacheDir
+		? path.join(env.cacheDir, 'Xenova', 'bge-small-zh-v1.5')
+		: null;
 	const create = async () =>
 		pipeline('feature-extraction', MODEL_ID, {
 			progress_callback: logDownloadProgress,
@@ -166,7 +158,9 @@ async function getExtractor() {
 				// 清除上次的进度状态，为重试做准备
 				lastDownloadProgress = -1;
 				logInfo(`模型下载失败，准备重试(${attempt}/${MAX_EXTRACTOR_RETRIES})...`);
-				await fs.rm(modelDir, { recursive: true, force: true });
+				if (modelDir) {
+					await fs.rm(modelDir, { recursive: true, force: true });
+				}
 			}
 		}
 		throw new Error('模型加载失败');

@@ -1,7 +1,7 @@
 {
   "name": "mn-docs-mcp",
   "type": "module",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Temsys-Shen/marginnote-addon-docs.git"

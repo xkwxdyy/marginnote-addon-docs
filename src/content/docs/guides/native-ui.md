@@ -56,9 +56,9 @@ UIAlertView.showWithTitleMessageStyleCancelButtonTitleOtherButtonTitlesTapBlock(
   ["确定"],
   function (alert, buttonIndex) {
     if (buttonIndex === 0) {
-      JSB.log("用户点击了确定");
+      console.log("用户点击了确定");
     } else {
-      JSB.log("用户取消");
+      console.log("用户取消");
     }
   }
 );
@@ -118,7 +118,7 @@ webViewShouldStartLoadWithRequestNavigationType: function (webView, request, typ
 
 ```javascript
 self.webView.evaluateJavaScript("document.title", function (result) {
-  JSB.log("页面标题: %@", result);
+  console.log("页面标题: %@", result);
 });
 ```
 

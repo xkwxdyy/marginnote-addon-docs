@@ -23,7 +23,7 @@ self.webView.evaluateJavaScript(script, null);
 
 // 或执行并取回结果
 self.webView.evaluateJavaScript("document.title", function (result) {
-  JSB.log("页面标题: %@", result);
+  console.log("页面标题: %@", result);
 });
 ```
 

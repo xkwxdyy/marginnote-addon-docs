@@ -2,7 +2,6 @@
 title: JSB
 description: JavaScript 桥接核心，连接插件 JS 与运行时对象的入口对象。
 ---
-
 JSB（JavaScript Bridge）是插件运行时的桥接核心对象：类定义、插件入口、日志与包内脚本加载都通过它完成。
 
 ## 实例成员 (Instance members)
@@ -23,11 +22,11 @@ defineClass(declaration: string, instanceMembers: object, classMembers?: object)
 
 **Parameters:**
 
-| Name | Type | Description |
-| :--- | :--- | :--- |
-| `declaration` | `string` | 类声明，例如 `'MyAddon : JSExtension'`。 |
-| `instanceMembers` | `object` | 实例方法与属性的集合。在此对象中定义的方法/属性在**实例**上调用（如 `sceneWillConnect`、`notebookWillOpen`、`queryAddonCommandStatus` 等）。 |
-| `classMembers` | `object?` | 类方法与属性的集合。在此对象中定义的方法在**类**上调用（如 `addonDidConnect`）。 |
+| Name                | Type        | Description                                                                                                                                              |
+| :------------------ | :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `declaration`     | `string`  | 类声明，例如 `'MyAddon : JSExtension'`。                                                                                                               |
+| `instanceMembers` | `object`  | 实例方法与属性的集合。在此对象中定义的方法/属性在**实例**上调用（如 `sceneWillConnect`、`notebookWillOpen`、`queryAddonCommandStatus` 等）。 |
+| `classMembers`    | `object?` | 类方法与属性的集合。在此对象中定义的方法在**类**上调用（如 `addonDidConnect`）。                                                                 |
 
 **Return Value:**
 
@@ -43,8 +42,8 @@ newAddon(mainPath: string): any
 
 **Parameters:**
 
-| Name | Type | Description |
-| :--- | :--- | :--- |
+| Name         | Type       | Description        |
+| :----------- | :--------- | :----------------- |
 | `mainPath` | `string` | 插件包根目录路径。 |
 
 **Return Value:**
@@ -53,7 +52,7 @@ newAddon(mainPath: string): any
 
 ### `log`
 
-向 MarginNote 控制台输出日志，类似 `console.log`。
+向系统控制台输出日志，类似 `console.log`。在MN4已不可用。MN3中使用参考[log,error](https://ohmymn.marginnote.cn/api/marginnote/#log-error)
 
 ```javascript
 log(format: string, ...args: any[]): void
@@ -61,10 +60,10 @@ log(format: string, ...args: any[]): void
 
 **Parameters:**
 
-| Name | Type | Description |
-| :--- | :--- | :--- |
-| `format` | `string` | 格式化字符串，支持 `%@`、`%d` 等 Objective-C 格式。 |
-| `...args` | `any[]` | 对应格式化字符串的参数。 |
+| Name        | Type       | Description                                             |
+| :---------- | :--------- | :------------------------------------------------------ |
+| `format`  | `string` | 格式化字符串，支持 `%@`、`%d` 等 Objective-C 格式。 |
+| `...args` | `any[]`  | 对应格式化字符串的参数。                                |
 
 ### `require`
 
@@ -76,8 +75,8 @@ require(name: string): void
 
 **Parameters:**
 
-| Name | Type | Description |
-| :--- | :--- | :--- |
+| Name     | Type       | Description                   |
+| :------- | :--------- | :---------------------------- |
 | `name` | `string` | 插件包内 JS 文件路径/文件名。 |
 
 **Note:**

@@ -42,7 +42,7 @@ description: 理解 scene/notebook/document 生命周期及何时可安全使用
 
 ```javascript
 notebookWillOpen: function (topicid) {
-  JSB.log("MNLOG Open Notebook: %@", topicid);
+  console.log("MNLOG Open Notebook: %@", topicid);
 
   NSTimer.scheduledTimerWithTimeInterval(0.2, false, function () {
     var showPanel = NSUserDefaults.standardUserDefaults().objectForKey("my_addon_show_panel");
